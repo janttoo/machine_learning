@@ -4,27 +4,35 @@ import sys
 import math
 import datetime
 
-class user_based_cf:
+class item_based_cf:
     def __init__(self):
         #943用户,1842影片
         #3900用户,6040影片,100w ratings
         #71567用户,10681影片,1000w ratings
         self.movie_path="./data/movies.dat1"
         self.rating_path="./data/ratings.dat1"
-#         self.prefs=self.loadMoviesMini()
         self.prefs=self.loadMoviesMid()
-        
+
+      #物品的相似度
+    def calculateSimilarItems(self):
+        result={}
+        c=0
+        for item in self.prefs:
+            scores=self.topMatches(item)
+            result[item]=scores
+        return result   
+    
     def loadMoviesMid(self):
         movies={}
         #获取影片标题
         for line in open(self.movie_path):
-               (id,title)=line.split('::')[0:2]
-               movies[id]=title
+            (id,title)=line.split('::')[0:2]
+            movies[id]=title
         prefs={}
         for line in open(self.rating_path):
             (user_id,movie_id,ratings)=line.split('::')[0:3]
-            prefs.setdefault(user_id,{})
-            prefs[user_id][movies[movie_id]]=float(ratings)
+            prefs.setdefault(movies[movie_id],{})
+            prefs[movies[movie_id]][user_id]=float(ratings)
         return prefs
     
 #计算拥有同种属性的欧式距离,然后利用1.0/(1+sqrt(sum))计算相似度
@@ -34,7 +42,7 @@ class user_based_cf:
         for item in self.prefs[p1]:
             if item in self.prefs[p2]:
                 si[item]=1
-    
+                
         if len(si)==0:
             return 0
     
@@ -73,12 +81,11 @@ class user_based_cf:
     
     #从反映偏好的字典中返回最为匹配者
     #返回结果的个数和相似度函数均为可选参数
-    def topMatches(self,person,n=5,similarity=sim_distance):
-        scores=[(similarity(self,person,other),other) for other in self.prefs if other!=person]        
+    def topMatches(self,person,n=3,similarity=sim_pearson):
+        scores=[(similarity(self,person,other),other) for other in self.prefs if other!=person]
         scores.sort()
         scores.reverse()
         return scores[0:n]
-    
     
     #利用所有他人评价值的加权平均，为某人提供建议
     def getRecommendations(self,person,similarity=sim_pearson):
@@ -104,17 +111,21 @@ class user_based_cf:
                     simSums.setdefault(item,0)
                     simSums[item]+=sim
     
+    
         ranking=[(total/simSums[item],item) for item,total in totals.items()]
         ranking.sort()
         ranking.reverse()
         return ranking
     
+    
 if __name__=='__main__':
     starttime=datetime.datetime.now()
-    ub=user_based_cf()
-#     print ub.prefs["87"]
-#     print ub.topMatches("197", 5)
-    print  ub.getRecommendations( "197")[0:5]
+    ib=item_based_cf()
+    print "hehe"
+    print ib.calculateSimilarItems()[0:5]
+    print "abc"
+    print  ib.getRecommendations("Toy Story (1995)")[0:5]
+    print "all ok"
     endtime=datetime.datetime.now()
     interval=(endtime-starttime).seconds
     print "cost "+str(interval)+" seconds"
