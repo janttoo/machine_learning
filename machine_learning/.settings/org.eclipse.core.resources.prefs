@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
+encoding//classification/KNN/numpredict.py=utf8
 encoding//collaborative_filtering/cf.py=utf8
 encoding//collaborative_filtering/item_based.py=utf8
 encoding//collaborative_filtering/user_based.py=utf8
