@@ -110,7 +110,6 @@ class user_based_cf:
         ranking=[(total/simSums[item],item) for item,total in totals.items()]
         ranking.sort()
         ranking.reverse()
-        print ranking
         return ranking
     
 if __name__=='__main__':
@@ -118,7 +117,7 @@ if __name__=='__main__':
     ub=user_based_cf()
 #     print ub.prefs["87"]
     #[(5.0, 'They Made Me a Criminal (1939)'), (5.0, 'Star Kid (1997)'), (5.0, 'Santa with Muscles (1996)'), (5.0, 'Saint of Fort Washington, The (1993)'), (5.0, 'Marlene Dietrich: Shadow and Light (1996) '), (5.0, 'Great Day in Harlem, A (1994)'), (5.0, 'Entertaining Angels: The Dorothy Day Story (1996)'), (5.0, 'Boys, Les (1997)'), (4.89884443128923, 'Legal Deceit (1997)'), (4.815019082242709, 'Letter From Death Row, A (1998)'), (4.800260666069043, 'Mrs. Dalloway (1997)'), (4.771240079753504, 'Leading Man, The (1996)'), (4.7321082983941425, 'Hearts and Minds (1996)'), (4.707354190896574, 'Dangerous Beauty (1998)'), (4.696244466490867, 'Pather Panchali (1955)'), (4.652397061026758, 'Lamerica (1994)'), (4.532337612572981, 'Innocents, The (1961)'), (4.527998574747079, 'Casablanca (1942)'), (4.512903125553784, 'Four Days in September (1997)'), (4.510270149719864, 'Everest (1998)'), (4.485151301801342, 'Wallace & Gromit: The Best of Aardman Animation (1996)'), (4.463287461290222, 'Wrong Trousers, The (1993)'), (4.450979436941035, 'Kaspar Hauser (1993)'), (4.431079071179518, 'Usual Suspects, The (1995)'), (4.427520682864959, 'Maya Lin: A Strong Clear Vision (1994)'), (4.414870784592075, 'Wedding Gift, The (1994)'), (4.407740300866056, 'Duoluo tianshi (1995)'), (4.393353032192906, 'Close Shave, A (1995)'), (4.377445252656464, 'Affair to Remember, An (1957)'), (4.374146179500976, 'Anna (1996)')]
-    print  ub.getRecommendations( "Toby")[0:30]
+    print  ub.getRecommendations( "87")[0:30]
     endtime=datetime.datetime.now()
     interval=float((endtime-starttime).seconds)
     print "cost "+str(interval)+" seconds"

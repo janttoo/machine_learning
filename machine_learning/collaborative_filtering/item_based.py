@@ -5,6 +5,25 @@ import math
 import datetime
 
 
+# {'Lisa Rose': {'Lady in the Water': 2.5, 'Snakes on a Plane': 3.5,
+#  'Just My Luck': 3.0, 'Superman Returns': 3.5, 'You, Me and Dupree': 2.5, 
+#  'The Night Listener': 3.0},
+# 'Gene Seymour': {'Lady in the Water': 3.0, 'Snakes on a Plane': 3.5, 
+#  'Just My Luck': 1.5, 'Superman Returns': 5.0, 'The Night Listener': 3.0, 
+#  'You, Me and Dupree': 3.5}, 
+# 'Michael Phillips': {'Lady in the Water': 2.5, 'Snakes on a Plane': 3.0,
+#  'Superman Returns': 3.5, 'The Night Listener': 4.0},
+# 'Claudia Puig': {'Snakes on a Plane': 3.5, 'Just My Luck': 3.0,
+#  'The Night Listener': 4.5, 'Superman Returns': 4.0, 
+#  'You, Me and Dupree': 2.5},
+# 'Mick LaSalle': {'Lady in the Water': 3.0, 'Snakes on a Plane': 4.0, 
+#  'Just My Luck': 2.0, 'Superman Returns': 3.0, 'The Night Listener': 3.0,
+#  'You, Me and Dupree': 2.0}, 
+# 'Jack Matthews': {'Lady in the Water': 3.0, 'Snakes on a Plane': 4.0,
+#  'The Night Listener': 3.0, 'Superman Returns': 5.0, 'You, Me and Dupree': 3.5},
+# 'Toby': {'Snakes on a Plane':4.5,'You, Me and Dupree':1.0,'Superman Returns':4.0}}
+
+
 class item_based_cf:
     def __init__(self):
         #943users,1842movies,10w ratings
@@ -12,13 +31,24 @@ class item_based_cf:
         #71567users,10681movies,1000w ratings
         self.movie_path="/home/xiaowei/data/movies.dat"
         self.rating_path="/home/xiaowei/data/ratings.dat"
-        self.user_dict={'Lisa Rose':{'lady':2.5,'snakes':3.5,'just':3.0,'superman':3.5,'you':2.5,'the':3.0},
-                                        'Gene Seymour':{'lady':3.0,'snakes':3.5,'just':1.5,"superman":5.0,'the':3.0,'you':3.5},
-                                        'Michael Phillips':{'lady':2.5,'snakes':3.0,'superman':3.5,'the':4.0},
-                                        'Claudia Puig':{'snakes':3.5,'just':3.0,'the':4.5,'superman':4.0,'you':2.5},
-                                        'Mick LaSalle':{'lady':3.0,'snakes':4.0,'just':2.0,'superman':3.0,'the':3.0,'you':2.0},
-                                        'Jack Matthews':{'lady':3.0,'snakes':4.0,'the':3.0,'superman':5.0,'you':3.5},
-                                        'Toby':{'snakes':4.5,'you':1.0,'superman':4.0}}
+#         self.user_dict= {'Lisa Rose': {'Lady in the Water': 2.5, 'Snakes on a Plane': 3.5,
+#  'Just My Luck': 3.0, 'Superman Returns': 3.5, 'You, Me and Dupree': 2.5, 
+#  'The Night Listener': 3.0},
+# 'Gene Seymour': {'Lady in the Water': 3.0, 'Snakes on a Plane': 3.5, 
+#  'Just My Luck': 1.5, 'Superman Returns': 5.0, 'The Night Listener': 3.0, 
+#  'You, Me and Dupree': 3.5}, 
+# 'Michael Phillips': {'Lady in the Water': 2.5, 'Snakes on a Plane': 3.0,
+#  'Superman Returns': 3.5, 'The Night Listener': 4.0},
+# 'Claudia Puig': {'Snakes on a Plane': 3.5, 'Just My Luck': 3.0,
+#  'The Night Listener': 4.5, 'Superman Returns': 4.0, 
+#  'You, Me and Dupree': 2.5},
+# 'Mick LaSalle': {'Lady in the Water': 3.0, 'Snakes on a Plane': 4.0, 
+#  'Just My Luck': 2.0, 'Superman Returns': 3.0, 'The Night Listener': 3.0,
+#  'You, Me and Dupree': 2.0}, 
+# 'Jack Matthews': {'Lady in the Water': 3.0, 'Snakes on a Plane': 4.0,
+#  'The Night Listener': 3.0, 'Superman Returns': 5.0, 'You, Me and Dupree': 3.5},
+# 'Toby': {'Snakes on a Plane':4.5,'You, Me and Dupree':1.0,'Superman Returns':4.0}} 
+        self.user_dict=self.loadMoviesMid()
         self.item_dict=self.transformPrefs(self.user_dict)
 
 
@@ -37,14 +67,12 @@ class item_based_cf:
         result={}
         #构造一个以物品为中心的字典
         itemsPrefs=self.transformPrefs(prefs)
-        print itemsPrefs
         c=0
         for item in itemsPrefs:
             c+=1
             if c%100==0:
                 print "%d/%d" %(c,len(itemsPrefs))
             scores=self.topMatches(itemsPrefs,item,n=n,similarity=self.sim_distance)
-            print item,scores
             result[item]=scores
         return result
     
@@ -72,8 +100,9 @@ class item_based_cf:
         if len(si)==0:
             return 0
         
-        sum_of_squares=sum([pow(prefs[p1][item]-prefs[p2][item],2) for item in si])
-        return 1.0/(1+math.sqrt(sum_of_squares))
+        sum_of_squares=sum([pow(prefs[p1][item]-prefs[p2][item],2) for item in prefs[p1] if item in prefs[p2]])
+        #书上用来测试的实例没有加上sqrt(sum_of_squares),虽然也没关系，不过user_based算法加了,只能当它是一个bug了...
+        return 1.0/(1+(sum_of_squares))
     
     #calculate the Pearson coefficient
     #if Pearson is close to 1,means the two samples are similar
@@ -106,9 +135,9 @@ class item_based_cf:
     
         return r
     
-    
     def getRecommendedItems(self,prefs,itemMatch,user):
         userRatings=prefs[user]
+        print userRatings
         scores={}
         totalSim={}
        
@@ -125,29 +154,26 @@ class item_based_cf:
                 totalSim.setdefault(item2,0)
                 totalSim[item2]+=similarity
 
-            rankings=[(score/totalSim[item],item) for item,score in scores.items()]
-            rankings.sort()
-            rankings.reverse()
+        rankings=[(score/totalSim[item],item) for item,score in scores.items()]
+        rankings.sort()
+        rankings.reverse()
 
-            return rankings
+        return rankings
     
     def topMatches(self,prefs,person,n=5,similarity=sim_distance):
-        print prefs['snakes'],prefs['lady'],person
-        scores=[(self.sim_distance(prefs,person,other),other) for other in prefs if other!=person]        
+        scores=[(similarity(prefs,person,other),other) for other in prefs if other!=person]        
         scores.sort()
         scores.reverse()
-        print "score=",scores[0:n]
         return scores[0:n]
     
 if __name__=='__main__':
     starttime=datetime.datetime.now()
     ib=item_based_cf()
-    itemsim=ib.calculateSimilarItems(ib.user_dict)
-#     print ib.topMatches(ib.item_dict, "superman")
-    print itemsim['snakes']
-#     print ib.getRecommendedItems(itemsim, "Toby")[0:]
+#     itemsim=ib.calculateSimilarItems(ib.user_dict)
+#     print ib.getRecommendedItems(ib.user_dict,itemsim, "Toby")
+    itemsim=ib.calculateSimilarItems(ib.user_dict,n=50)
+#     print itemsim
+    print ib.getRecommendedItems(ib.user_dict, itemsim, "87")
     endtime=datetime.datetime.now()
     interval=(endtime-starttime).seconds
     print "cost "+str(interval)+" seconds"
-    
-    
