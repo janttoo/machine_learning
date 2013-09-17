@@ -8,33 +8,34 @@ DataSet http://archive.ics.uci.edu/ml/datasets/Yeast
 
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.cross_validation import train_test_split, cross_val_score
 
 class Knn:
     '''
     Example of knn using dataset above
     '''
-
     #Predicted category mush be  numeric types
     #so yeast_target.dat format is:MIT 4,NUC 3
     def loadData(self):
-        f_matrix=file("./yeast.dat","r")
-        f_target=file("./yeast_target.dat","r")
+        f_matrix=file("/home/xiaowei/data/yeast.dat","r")
+        f_target=file("/home/xiaowei/data/yeast_target.dat","r")
         data=np.loadtxt(f_matrix)
-        labels=[line.strip('\n').split(' ')[1] for line in f_target]
+        data=data.astype(np.float)
+        labels=np.array([line.strip('\n').split(' ')[1] for line in f_target])
+        labels=labels.astype(np.int)
         print "Load Data Finish"
         return data,labels
-    
-    def doWork(self,trainData,labels):       
-        neigh=KNeighborsClassifier (n_neighbors=3,algorithm="kd_tree")
-        neigh.fit(trainData,labels)
-        print "Train Data Finish"
-        print neigh.predict([0.58 ,0.44,  0.57,  0.13 , 0.50 , 0.00 , 0.54 , 0.22])
-    
-    def writetoFile(self):
-        f=file("knn_output.txt","w")
         
+    def doWork(self,DataIn,LabelsIn):            
+        neigh=KNeighborsClassifier (n_neighbors=5,algorithm="kd_tree")
+        scores=cross_val_score(neigh,DataIn,LabelsIn,cv=5)
+        print "KNN Accuracy: %0.2f (+/- %0.3f)" % (scores.mean(),scores.std()*1.0/2)
+        #split Data into trainData and testData   
+        DataTrain,DataTest,LabelTrain,LabelTest=train_test_split(DataIn,LabelsIn,test_size=0.2,random_state=1) 
+        neigh.fit(DataTrain,LabelTrain)
+        print "accuracy_rate",neigh.score(DataTest,LabelTest)
+    
 if __name__=='__main__':
     knn=Knn()
     trainData,labels=knn.loadData()
-    neigh=knn.doWork(trainData, labels)
-   
+    knn.doWork(trainData, labels)
