@@ -1,5 +1,7 @@
 eclipse.preferences.version=1
-encoding//classification/KNN/numpredict.py=utf8
-encoding//collaborative_filtering/cf.py=utf8
+encoding//association/apriori.py=utf8
+encoding//classification/Decision_Trees/cart_tree.py=utf8
+encoding//classification/KNN/sklearn_knn.py=utf8
+encoding//classification/Random_Forest/sklearn_Random_Forest.py=utf8
 encoding//collaborative_filtering/item_based.py=utf8
 encoding//collaborative_filtering/user_based.py=utf8
