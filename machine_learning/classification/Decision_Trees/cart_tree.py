@@ -20,15 +20,18 @@ class decisionnode:
         self.tb=tb
         self.fb=fb
     
-def loadmydata():
+def loadLocalData():
     global my_data
     my_data=[line.strip('\n').split('\t') for line in file('./tree_data.txt')]
 
-def loadData():
+def loadCarData():
     global my_data
     my_data=[line.strip('\n').split(',') for line in file('/home/xiaowei/data/car.dat')]
 #     my_data=my_data[0:100]
-    print my_data
+
+def loadIrisData():
+    global my_data
+    my_data=[line.strip('\n').split(',') for line in file('/home/xiaowei/data/iris.dat')]
  
         
 def divideset(rows,column,value):
@@ -37,7 +40,6 @@ def divideset(rows,column,value):
         split_function=lambda row:row[column]>=value
     else:
         split_function=lambda row:row[column]==value
-        
         
     set1=[row for row in rows if split_function(row)]
     set2=[row for row in rows if not split_function(row)]
@@ -117,8 +119,6 @@ def buildtree(rows,scoref=entropy):
         trueBranch=buildtree(best_sets[0])
         falseBranch=buildtree(best_sets[1])
         return decisionnode(col=best_criteria[0],value=best_criteria[1],tb=trueBranch,fb=falseBranch)
-
-
     #熵值最低的一对子集求得的加权平均熵比当前集合的熵要大，拆分过程就结束了
     else:
         return decisionnode(results=uniquecounts(rows))
@@ -146,16 +146,16 @@ def getdepth(tree):
     return max(getdepth(tree.tb),getdepth(tree.fb))+1
 
 def drawtree(tree,jpeg="tree.jpg"):
-    w=getwidth(tree)*100
+    w=getwidth(tree)*200
     h=getdepth(tree)*100+120
     
     img=Image.new('RGB',(w,h),(255,255,255))
     draw=ImageDraw.Draw(img)
     
-    drawnode(draw,tree,w/2,20)
+    drawnode(draw,tree,w/2,40)
     img.save(jpeg,'JPEG')
     
-    drawnode(draw,tree,w/2,20)
+    drawnode(draw,tree,w/2,40)
     img.save(jpeg,'JPEG')
     img.show()
     
@@ -172,7 +172,6 @@ def drawnode(draw,tree,x,y):
         
         drawnode(draw,tree.fb,left+w1/2,y+100)
         drawnode(draw,tree.tb,right-w2/2,y+100)
-        
     else:
         txt=' \n'.join(['%s:%d'%v for v in tree.results.items()])
         draw.text((x-20,y),txt,(0,0,0))
@@ -210,8 +209,8 @@ def prune(tree,mingain):
         for v,c in tree.fb.results.items():
             fb+=[[v]]*c
         
+        
         delta=entropy(tb+fb)-(entropy(tb)+entropy(fb))/2
-    
         if delta<mingain:
             tree.tb,tree.fb=None,None
             tree.results=uniquecounts(tb+fb)
@@ -251,11 +250,17 @@ def mdclassify(observation,tree):
             return mdclassify(observation, branch)
         
 if __name__=='__main__':
-    #loadmydata()
-    loadData()
+#     loadLocalData()
+#     loadCarData()
+    loadIrisData()
     tree=buildtree(my_data)
     drawtree(tree,jpeg='treeview.jpg')
-    print classify(['vhigh', 'vhigh', '2', '3', 'small', 'low'], tree)
-    # prune(tree,0.1)
+#     print classify(['vhigh', 'vhigh', '2', '3', 'small', 'low'], tree)
+    print classify([5.5,2.5,4.0,1.3], tree)
+    print classify([6.7,3.0,5.2,2.3], tree)
+    prune(tree,0.3)
     #即使是没有任何值，也要赋值为None
-    # print mdclassify(['google','France',None,None],tree)
+    drawtree(tree, jpeg='mdTreeView.jpg')
+#     print mdclassify(['vhigh', 'vhigh', '2', '3', 'small', 'low'],tree)
+    
+    
