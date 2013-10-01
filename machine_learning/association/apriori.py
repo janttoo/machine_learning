@@ -36,7 +36,7 @@ class Apriori:
 		while len( self.F[k - 1] ) != 0:
 			# 合并所有频繁(k-1)-项集,得到候选k项集
 			candidate[k] = self.candidateGen( self.F[k - 1], k )
-			print candidate[k]
+# 			print candidate[k]
 			# 遍历事务集,key为行号,value为该行所有item
 			# t-format (key,value)
 			for t in self.transList.iteritems():
@@ -47,7 +47,7 @@ class Apriori:
 
 			# 剪枝,少于支持度的全部剪掉
 			self.F[k] = self.prune( candidate[k], k )
-			print self.F[k]
+# 			print self.F[k]
 # 			if k > 2:
 # 				self.removeSkyline(k, k - 1)
 			k += 1
@@ -118,12 +118,12 @@ class Apriori:
 		for k, itemset in F.iteritems():
 			if k >= 2:
 				for item in itemset:
-					print item
+# 					print item
 					subsets = self.genSubsets( item )
-					print subsets
+# 					print subsets
 					for subset in subsets:
 						if len( subset ) == 1:
-							print subset[0], '111'
+# 							print subset[0], '111'
 							subCount = self.freqList[subset[0]]
 						else:
 							subCount = self.freqList[subset]
@@ -135,7 +135,7 @@ class Apriori:
 							if confidence >= self.minConf:
 								support = self.support( self.freqList[item] )
 								rhs = self.difference( item, subset )
-								print item, subset, rhs
+# 								print item, subset, rhs
 								if len( rhs ) == 1:
 									H.append( ( subset, rhs, support, confidence ) )
 
